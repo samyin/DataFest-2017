@@ -1,0 +1,22 @@
+---
+title: "datafest"
+author: Angie Shen, Sam Yin, Haozhang Jiang, Pim Chuaylua
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(magrittr)
+library(dplyr)
+library(modelr)
+library(ggplot2)
+library(tidyr)
+library(stringr)
+library(gridExtra)
+```
+
+```{r data set}
+
+```
+
