@@ -21,7 +21,12 @@ data <- fread("/datafest/ASADataFest2017_Data/data.txt")
 dest <- fread("/datafest/ASADataFest2017_Data/dest.txt")
 class(data) = "data.frame"
 class(dest) = "data.frame"
+set.seed(20170401)
 sample <- data %>% sample_frac(0.01)
-save(sample, file = "sample.csv")
+save(sample, file = "sample.RData")
+```
+
+```{r merge}
+data_merge <- left_join(data, dest)
 ```
 
