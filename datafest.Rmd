@@ -9,7 +9,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(magrittr)
 library(dplyr)
-library(modelr)
 library(ggplot2)
 library(tidyr)
 library(stringr)
@@ -17,7 +16,12 @@ library(gridExtra)
 library(data.table)
 ```
 
-```{r data set}
-
+```{r data set, message=FALSE, warning=FALSE}
+data <- fread("/datafest/ASADataFest2017_Data/data.txt")
+dest <- fread("/datafest/ASADataFest2017_Data/dest.txt")
+class(data) = "data.frame"
+class(dest) = "data.frame"
+sample <- data %>% sample_frac(0.01)
+save(sample, file = "sample.csv")
 ```
 
