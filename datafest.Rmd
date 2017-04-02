@@ -21,6 +21,7 @@ data <- fread("/datafest/ASADataFest2017_Data/data.txt")
 dest <- fread("/datafest/ASADataFest2017_Data/dest.txt")
 class(data) = "data.frame"
 class(dest) = "data.frame"
+<<<<<<< HEAD
 #set.seed(20170401)
 #sample <- data %>% sample_frac(0.01)
 #save(sample, file = "sample.RData")
@@ -37,10 +38,16 @@ data <- data %>% mutate(distance_band_f =
                              levels = c("VL", "L", "M", "H", "VH"), 
                              ordered = TRUE))) %>% 
   select(-(24:26))
+=======
+set.seed(20170401)
+sample <- data %>% sample_frac(0.01)
+save(sample, file = "sample.RData")
+>>>>>>> 9fe896832ff3e624c1af574c88b9fe25ecdb364e
 ```
 
 ```{r merge}
 data_merge <- left_join(data, dest)
+<<<<<<< HEAD
 ```
 
 ```{r, message=FALSE, warning=FALSE}
@@ -116,5 +123,7 @@ model_1 <- glm(booking ~ -1 + ., data = data_trans,
                na.action = "na.omit")
 summary(model_1)
 
+=======
+>>>>>>> 9fe896832ff3e624c1af574c88b9fe25ecdb364e
 ```
 
