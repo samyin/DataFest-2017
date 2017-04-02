@@ -21,12 +21,100 @@ data <- fread("/datafest/ASADataFest2017_Data/data.txt")
 dest <- fread("/datafest/ASADataFest2017_Data/dest.txt")
 class(data) = "data.frame"
 class(dest) = "data.frame"
-set.seed(20170401)
-sample <- data %>% sample_frac(0.01)
-save(sample, file = "sample.RData")
+#set.seed(20170401)
+#sample <- data %>% sample_frac(0.01)
+#save(sample, file = "sample.RData")
+data <- data %>% mutate(distance_band_f = 
+           as.numeric(factor(distance_band, 
+                             levels = c("VC", "C", "M", "F", "VF"), 
+                             ordered = TRUE))) %>% 
+  mutate(hist_price_band_f = 
+           as.numeric(factor(hist_price_band, 
+                             levels = c("VL", "L", "M", "H", "VH"), 
+                             ordered = TRUE))) %>% 
+  mutate(popularity_band_f = 
+           as.numeric(factor(popularity_band, 
+                             levels = c("VL", "L", "M", "H", "VH"), 
+                             ordered = TRUE))) %>% 
+  select(-(24:26))
 ```
 
 ```{r merge}
 data_merge <- left_join(data, dest)
+```
+
+```{r, message=FALSE, warning=FALSE}
+data_booked <- data %>% arrange(date_time) %>% 
+  group_by(user_id, srch_ci, srch_co, hotel_country) %>% 
+  summarize(is_booking = as.integer(any(is_booking == 1)), 
+            srch_count = n(), 
+            srch_count_unique = sum(cnt == 1), 
+            distance = median(as.numeric(orig_destination_distance), 
+                              na.rm = TRUE), 
+            is_mobile = as.integer(any(is_mobile == 1)), 
+            is_package = as.integer(any(is_package == 1)), 
+            channel = last(channel), 
+            adults_cnt = last(srch_adults_cnt), 
+            children_cnt = last(srch_children_cnt), 
+            rm_cnt = last(srch_rm_cnt), 
+            prop_is_branded = last(prop_is_branded), 
+            prop_starrating = last(prop_starrating), 
+            distance_band = last(distance_band_f), 
+            hist_price_band = last(hist_price_band_f), 
+            popularity_band = last(popularity_band_f))
+```
+
+```{r, message=FALSE, warning=FALSE}
+booking_count <- data_booked %>% filter(is_booking == 1) %>% 
+  select(srch_count:popularity_band) %>% ungroup() %>% 
+  select(-(user_id:hotel_country), -srch_count_unique)
+booking_count$srch_count[booking_count$srch_count > 5] = 6
+
+d <- 6
+q <- d - 1 + ncol(booking_count) - 1
+n <- nrow(booking_count)
+N <- sum(booking_count$srch_count) - 
+  sum(booking_count$srch_count == max(booking_count$srch_count))
+
+y <- vector(length = N)
+W <- matrix(nrow = N, ncol = d - 1)
+x <- matrix(nrow = N, ncol = ncol(booking_count))
+s <- 0
+for (i in 1:n) {
+  if (booking_count$srch_count[i] == 1) {
+    y[s + 1] <- 1
+    W[s + 1, 1] <- 1
+    W[s + 1, -1] <- rep(0, d - 2)
+    x[s + 1, 1] <- i
+    s <- s + 1
+  } else if (booking_count$srch_count[i] == d) {
+    y[(s + 1):(s + d - 1)] <- 0
+    W[(s + 1):(s + d - 1), ] <- diag(d - 1)
+    x[(s + 1):(s + d - 1), 1] <- rep(i, d - 1)
+    s <- s + d - 1
+  } else {
+    r <- booking_count$srch_count[i]
+    y[(s + 1):(s + r - 1)] <- 0
+    y[s + r] <- 1
+    W[(s + 1):(s + r), ] <- diag(d - 1)[1:r, ]
+    x[(s + 1):(s + r), 1] <- rep(i, r)
+    s <- s + r
+  }
+}
+for (j in 1:N) {
+  for (k in 2:ncol(booking_count)) {
+    x[j, k] <- as.numeric(booking_count[x[j, 1], k])
+  }
+}
+data_trans <- as.data.frame(cbind(W, x[, -1], y))
+colnames(data_trans) <- c(paste0("srch_", 1:(d - 1)), 
+                          colnames(booking_count)[-1], "booking")
+rm(W, x, y, i, j, k, r, s)
+
+model_1 <- glm(booking ~ -1 + ., data = data_trans, 
+               family = binomial(link = "probit"), 
+               na.action = "na.omit")
+summary(model_1)
+
 ```
 
