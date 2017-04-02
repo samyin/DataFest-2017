@@ -117,3 +117,32 @@ model_1 <- glm(booking ~ -1 + ., data = data_trans,
 summary(model_1)
 ```
 
+```{r}
+complete_search <- data_merge %>% select(date_time, srch_destination_name) %>% 
+  as.data.frame() %>% .[complete.cases(.), ]
+search_count_top <- complete_search %>% group_by(srch_destination_name) %>% 
+  summarize(srch_cnt = n()) %>% filter(srch_cnt > 2366) %>% 
+  arrange(desc(srch_cnt)) %>% as.data.frame()
+
+search_weekly <- matrix(nrow = nrow(search_count_top), ncol = 51)
+for (i in 1:nrow(search_count_top)) {
+  series <- complete_search %>% 
+    filter(srch_destination_name == search_count_top[i, 1]) %>% 
+    arrange(date_time) %>% 
+    mutate(date = as.Date(substring(date_time, 1, 10), "%Y-%m-%d"), 
+           week = as.numeric(format(date, "%W"))) %>% 
+    filter(week > 0 & week < 52) %>% group_by(week) %>% 
+    summarize(srch_cnt = n()) %>% 
+    ungroup() %>% select(srch_cnt) %>% 
+    as.matrix()
+    if (nrow(series) < 51) {
+      search_weekly[i, ] <- NA
+    } else {
+        search_weekly[i, ] <- series
+      }
+}
+search_weekly <- do.call(cbind, list(search_count_top, search_weekly)) %>% 
+  .[complete.cases(.), ]
+
+```
+
