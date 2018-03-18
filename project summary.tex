@@ -21,7 +21,7 @@
 \maketitle
 
 \section{Introduction}
-For our project, we looked at the times of search - the number of searches from the same user before finally booking with a continuation ratio probit model, and the exact time of search - to compare with the New York Times hits, a metric we chose to represent possible outside influences with respe
+For our project, we model the times of search - the number of searches from the same user before finally booking with a continuation ratio probit model, and align the exact time of search with the New York Times hits, a metric representing popularity of specific locations throughout the year.
 
 \section{Continuation Ratio Probit Model}
 
@@ -36,12 +36,12 @@ The model was fit to data for users located in the United States of America and 
 The current model does not consider time-variant covariates, which are likely to affect the baseline probability. The inference could also be based on posterior samples from a Markov Chain Monte Carlo algorithm with data augmentation.
 
 \section{Outside Data: New York Times Articles}
-For this part of the analysis, we used New York Times articles as indications of the social network "buzz" around any particular location. We used a time interval of a week, from Monday to Sunday, to divide the data into 51 periods. For the data that we're looking at, in week 46 of 2015, there was the terror attack in Paris (on November 13th), that corresponds to a very steep increase in the number of hits of New York Times articles, from 698 to 1296. At the same time, there is a very steep drop in hotel searching behavior on Expedia, from 1876 in week 45 to 1146 in week 46. As there is no data from previous years, we are not able to compare the result with a baseline, but the number of searches from the holiday season (around 1000) is even lower than in the beginning of the year (around 1500).
+For this part of the analysis, we used New York Times articles as indications of the social network ``buzz'' around any particular location. We used a time interval of a week, from Monday to Sunday, to divide the data into 51 periods. For the data that we're looking at, in week 46 of 2015, there was the terror attack in Paris (on November 13th), that corresponds to a very steep increase in the number of hits of New York Times articles, from 698 to 1296. At the same time, there is a very steep drop in hotel searching behavior on Expedia, from 1876 in week 45 to 1146 in week 46. As there is no data from previous years, we are not able to compare the result with a baseline, but the number of searches from the holiday season (around 1000) is even lower than in the beginning of the year (around 1500).
 
 The process of how we obtained the data from New York Times is described as follows. We used the New York Times Developer API to get the number of views of articles with the key word mentioned within each week. The script is written in PHP.
 
 \section{Discussion}
-We initially tried to model the data as a network: users in Country A sending ties to hotels in Country B, and vice versa. Then we might be able to too run a "network" regression to determine what kind of covariates is more explanatory in the booking behavior of clients, and are those different for users and hotels in different areas.  The problem with this kind of modeling is that the data we're working with is more about the user specification and less about the socioeconomic factors that might play a huge role in such interactions.
+We initially tried to model the data as a network: users in Country A sending ties to hotels in Country B, and vice versa. Then we might be able to too run a ``network'' regression to determine what kind of covariates is more explanatory in the booking behavior of clients, and are those different for users and hotels in different areas.  The problem with this kind of modeling is that the data we're working with is more about the user specification and less about the socioeconomic factors that might play a huge role in such interactions.
 
 
 \end{document}
